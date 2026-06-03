@@ -1,0 +1,21 @@
+# Tool options. Replace with your tool plugin of choice.
+vlsi.core.build_system: make
+# Genus options
+vlsi.core.synthesis_tool: "hammer.synthesis.genus"
+synthesis.genus.genus_bin: "/tools/cadence/DDIEXPORT23/GENUS231/tools.lnx86/bin/genus"
+synthesis.genus.version: "231"
+# Innovus options
+vlsi.core.par_tool: "hammer.par.innovus"
+par.innovus.version: "231"
+par.innovus.innovus_bin: "/tools/cadence/DDIEXPORT23/INNOVUS231/tools.lnx86/bin/innovus"
+par.innovus.design_flow_effort: "standard"
+par.inputs.gds_merge: true
+# Calibre options
+vlsi.core.drc_tool: "hammer.drc.calibre"
+drc.calibre.version: "2023.4_39.23"
+vlsi.core.lvs_tool: "hammer.lvs.calibre"
+lvs.calibre.version: "2023.4_39.23"
+# VCS options
+vlsi.core.sim_tool: "hammer.sim.vcs"
+sim.vcs.version: "W-2024.09-SP2-3"
+sim.vcs.vcs_bin: "/tools/synopsys/vcs/W-2024.09-SP2-3/bin/vcs"

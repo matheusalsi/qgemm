@@ -1,0 +1,31 @@
+#!/usr/bin/env python3
+#
+# NOTE: the custom hooks are only used for sky130.
+
+import os
+from hammer.vlsi import CLIDriver, HammerTool, HammerToolHookAction
+from typing import Dict, Callable, Optional, List
+
+def report_power_hook(x: HammerTool) -> bool:
+    x.append("""
+report_power > {rundir}/reports/power_post_syn.rpt
+report_power -levels 2 > {rundir}/reports/power_post_syn_hier.rpt
+""".format(rundir=x.run_dir))
+    return True
+
+class QGemmDriver(CLIDriver):
+    def get_extra_synthesis_hooks(self) -> List[HammerToolHookAction]:
+        extra_hooks = [
+            HammerTool.make_pre_insertion_hook("generate_reports", report_power_hook)
+        ]
+        return extra_hooks
+    
+    def get_extra_par_hooks(self) -> List[HammerToolHookAction]:
+        extra_hooks = [
+            HammerTool.make_removal_hook("place_bumps"),
+        ]
+        return extra_hooks
+
+if __name__ == '__main__':
+    QGemmDriver().main()
+
