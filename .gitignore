@@ -20,3 +20,4 @@ CMakeUserPresets.json
 
 # Synthesis Build Files
 build-*/
+*.out

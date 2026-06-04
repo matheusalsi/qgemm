@@ -25,7 +25,7 @@ for arg in "$@"; do
   fi
 done
 
-# Configura os arquivos YML e o executável baseados na tecnologia escolhida
+# Configura os arquivos YML baseados na tecnologia escolhida
 if [[ "$TECH" == "asap7" ]]; then
   CONFS_DEFAULT="qgemm-tools.yml qgemm-asap7.yml"
 elif [[ "$TECH" == "sky130" ]]; then
@@ -42,6 +42,36 @@ EXEC_NAME="./qgemm-hooks"
 
 # Define o nome da pasta com a tecnologia correta
 VLSI_DIR="build-qgemm-${TECH}"
+
+# -----------------------------------------------------------------------------
+# Memórias do Gemmini que devem ir para flip-flops via --force-synflops.
+# O accumulator (mem_0_ext) é 1R1W (multiport) e o sky130/sram22 só tem macros
+# single-port, então ele NÃO mapeia e precisa ser flopado. Se o MacroCompiler
+# reclamar de outra memória (ex.: "mem_1_ext"), é só adicionar aqui:
+#   FORCE_SYNFLOPS_MEMS="mem_0_ext mem_1_ext" ./script.sh syn
+FORCE_SYNFLOPS_MEMS="${FORCE_SYNFLOPS_MEMS:-mem_0_ext}"
+
+# Monta os flags "--force-synflops <mem>" para cada memória listada
+FORCE_FLAGS=""
+for m in $FORCE_SYNFLOPS_MEMS; do
+  FORCE_FLAGS+=" --force-synflops $m"
+done
+
+# Só sobrescreve o modo do MacroCompiler se o usuário não tiver passado o seu
+USER_SET_MACRO_MODE=0
+if [ ${#MAKE_ARGS[@]} -gt 0 ]; then
+  for a in "${MAKE_ARGS[@]}"; do
+    [[ "$a" == TOP_MACROCOMPILER_MODE=* ]] && USER_SET_MACRO_MODE=1
+  done
+fi
+
+# No sky130, força o accumulator para flops e mantém o resto mapeando em SRAM real.
+# Os $(SMEMS_CACHE)/$(SMEMS_HAMMER) são expandidos pelo PRÓPRIO make (variáveis de
+# linha de comando são expandidas recursivamente), então reaproveitamos os paths
+# corretos sem hardcodar nada. As barras invertidas impedem o bash de tocá-los.
+if [[ "$TECH" == "sky130" && "$USER_SET_MACRO_MODE" -eq 0 ]]; then
+  MAKE_ARGS+=("TOP_MACROCOMPILER_MODE=-l \$(SMEMS_CACHE) -hir \$(SMEMS_HAMMER) --mode strict${FORCE_FLAGS}")
+fi
 
 # O "${MAKE_ARGS[@]}" no final repassa os argumentos extras
 # A linha HAMMER_EXEC="$EXEC_NAME" sobrescreve o Makefile
