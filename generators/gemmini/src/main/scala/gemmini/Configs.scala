@@ -245,7 +245,7 @@ object GemminiConfigs {
 
   val leanPrintfConfig = defaultConfig.copy(dataflow=Dataflow.WS, max_in_flight_mem_reqs = 64, acc_read_full_width = false, ex_read_from_acc = false, ex_write_to_spad = false, hardcode_d_to_garbage_addr = true, use_firesim_simulation_counters=true)
 
-  val int4Config = defaultConfig.copy(
+  val int4Acc16Config = defaultConfig.copy(
     inputType  = SInt(8.W),   // byte-alinhado -> nao dispara o / by zero
     weightType = SInt(8.W),
     accType    = SInt(16.W),  
@@ -297,9 +297,50 @@ object GemminiConfigs {
     )),
   
 
-    acc_scale_args = Some(defaultConfig.acc_scale_args.get.copy(
-      c_str = "({float y = ROUND_NEAR_EVEN((x) * (scale)); y > 32767 ? 32767 : (y < -32768 ? -32768 : (acc_t)y);})"
+    acc_scale_args = Some(ScaleArguments(
+      (t: SInt, f: Float) => {
+        val f_rec = recFNFromFN(f.expWidth, f.sigWidth, f.bits)
+
+        val in_to_rec_fn = Module(new INToRecFN(t.getWidth, f.expWidth, f.sigWidth))
+        in_to_rec_fn.io.signedIn := true.B
+        in_to_rec_fn.io.in := t.asTypeOf(UInt(t.getWidth.W))
+        in_to_rec_fn.io.roundingMode := consts.round_near_even
+        in_to_rec_fn.io.detectTininess := consts.tininess_afterRounding
+
+        val t_rec = in_to_rec_fn.io.out
+
+        val muladder = Module(new MulAddRecFN(f.expWidth, f.sigWidth))
+        muladder.io.op := 0.U
+        muladder.io.roundingMode := consts.round_near_even
+        muladder.io.detectTininess := consts.tininess_afterRounding
+        muladder.io.a := t_rec
+        muladder.io.b := f_rec
+        muladder.io.c := 0.U
+
+        val rec_fn_to_in = Module(new RecFNToIN(f.expWidth, f.sigWidth, t.getWidth))
+        rec_fn_to_in.io.in := muladder.io.out
+        rec_fn_to_in.io.roundingMode := consts.round_near_even
+        rec_fn_to_in.io.signedOut := true.B
+
+        val overflow = rec_fn_to_in.io.intExceptionFlags(1)
+        val maxsat = ((1 << (t.getWidth-1))-1).S
+        val minsat = (-(1 << (t.getWidth-1))).S
+        val sign = rawFloatFromRecFN(f.expWidth, f.sigWidth, rec_fn_to_in.io.in).sign
+        val sat = Mux(sign, minsat, maxsat)
+        val scaled = Mux(overflow, sat, rec_fn_to_in.io.out.asTypeOf(t))
+
+        val hi = 7.S(t.getWidth.W)
+        val lo = (-8).S(t.getWidth.W)
+        Mux(scaled > hi, hi, Mux(scaled < lo, lo, scaled)).asTypeOf(t)
+      },
+      8, Float(8, 24), -1,
+      identity = "1.0",
+      c_str = "({float y = ROUND_NEAR_EVEN((x) * (scale)); y > 7 ? 7 : (y < -8 ? -8 : (acc_t)y);})"
     ))
+  )
+
+  val int4Acc32Config = int4Acc16Config.copy(
+    accType = SInt(32.W),
   )
 
   val int16Config = defaultConfig.copy(
@@ -310,7 +351,7 @@ object GemminiConfigs {
     spatialArrayInputType  = SInt(16.W),
     spatialArrayWeightType = SInt(16.W),
   
-    spatialArrayOutputType = SInt(40.W),
+    spatialArrayOutputType = SInt(36.W),
     
     mvin_scale_args = Some(defaultConfig.mvin_scale_args.get.copy(
       c_str = "({float y = ROUND_NEAR_EVEN((x) * (scale)); y > 32767 ? 32767 : (y < -32768 ? -32768 : (elem_t)y);})"
@@ -318,23 +359,6 @@ object GemminiConfigs {
     acc_scale_args = Some(defaultConfig.acc_scale_args.get.copy(
       c_str = "({float y = ROUND_NEAR_EVEN((x) * (scale)); y > 32767 ? 32767 : (y < -32768 ? -32768 : (acc_t)y);})"
     ))
-  )
-
-  // INT8 pipelineado (baseline). Deriva do defaultConfig (que e nao-pipelineado)
-  // e adiciona o pipeline no acc_scale. c_str herdado (INT8_MAX/MIN, correto p/ 8 bits).
-  val int8PipeConfig = defaultConfig.copy(
-    acc_scale_args = Some(defaultConfig.acc_scale_args.get.copy(latency = 4))
-  )
-  
-  // INT4 pipelineado. Reusa todo o int4Config (mvin lambda custom, accType=16,
-  // spatialArray 4 bits, c_str 7/-8) e so garante latency=4 no acc_scale.
-  val int4PipeConfig = int4Config.copy(
-    acc_scale_args = Some(int4Config.acc_scale_args.get.copy(latency = 4))
-  )
-  
-  // INT16 pipelineado. Reusa todo o int16Config e so garante latency=4 no acc_scale.
-  val int16PipeConfig = int16Config.copy(
-    acc_scale_args = Some(int16Config.acc_scale_args.get.copy(latency = 4))
   )
 
 }
@@ -356,24 +380,16 @@ class DefaultGemminiConfig[T <: Data : Arithmetic, U <: Data, V <: Data](
   )
 })
 
-class Int4GemminiConfig extends Config(
-  new DefaultGemminiConfig(GemminiConfigs.int4Config)
+class Int4Acc16GemminiConfig extends Config(
+  new DefaultGemminiConfig(GemminiConfigs.int4Acc16Config)
+)
+
+class Int4Acc32GemminiConfig extends Config(
+  new DefaultGemminiConfig(GemminiConfigs.int4Acc32Config)
 )
 
 class Int16GemminiConfig extends Config(
   new DefaultGemminiConfig(GemminiConfigs.int16Config)
-)
-
-class Int8PipeGemminiConfig extends Config(
-  new DefaultGemminiConfig(GemminiConfigs.int8PipeConfig)
-)
- 
-class Int4PipeGemminiConfig extends Config(
-  new DefaultGemminiConfig(GemminiConfigs.int4PipeConfig)
-)
- 
-class Int16PipeGemminiConfig extends Config(
-  new DefaultGemminiConfig(GemminiConfigs.int16PipeConfig)
 )
 
 /**

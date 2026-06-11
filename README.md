@@ -9,7 +9,12 @@ Navigate to the desired simulator directory (`verilator`, `vcs`, or `xcelium`):
 
 ```bash
 cd chipyard/sims/<simulator>
-make CONFIG=GemminiRocketConfig run-binary BINARY=../../generators/gemmini/software/gemmini-rocc-tests/build/imagenet/resnet50-baremetal TIMEOUT_CYCLES=0 LOADMEM=1
+make CONFIG=GemminiINT4RocketConfig 
+```
+
+```bash
+cd chipyard/sims/<simulator>
+make CONFIG=GemminiINT4RocketConfig run-binary BINARY=../../generators/gemmini/software/gemmini-rocc-tests/build/imagenet/resnet50-baremetal TIMEOUT_CYCLES=0 LOADMEM=1
 ```
 
 # VLSI FLOW

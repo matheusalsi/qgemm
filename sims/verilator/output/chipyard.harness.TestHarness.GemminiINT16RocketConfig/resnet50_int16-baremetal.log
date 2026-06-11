@@ -1,0 +1,67 @@
+%Warning: System has stack size 8192 kb which may be too small; suggest 'ulimit -c 15365' or larger
+[UART] UART0 is here (stdin/stdout).
+conv 1 cycles: 11653146 
+matmul 2 cycles: 745441 
+conv 3 cycles: 3958057 
+matmul 4 cycles: 2997903 
+matmul 5 cycles: 2156533 
+matmul 6 cycles: 1574951 
+conv 7 cycles: 2043070 
+matmul 8 cycles: 2163672 
+matmul 9 cycles: 1579090 
+conv 10 cycles: 2042444 
+matmul 11 cycles: 2158571 
+matmul 12 cycles: 2311074 
+conv 13 cycles: 5961466 
+matmul 14 cycles: 3418845 
+conv 15 cycles: 816225 
+matmul 16 cycles: 1374411 
+conv 17 cycles: 1965709 
+matmul 18 cycles: 1444275 
+matmul 19 cycles: 1382199 
+conv 20 cycles: 1966483 
+matmul 21 cycles: 1447615 
+matmul 22 cycles: 1382241 
+conv 23 cycles: 1965800 
+matmul 24 cycles: 1445273 
+matmul 25 cycles: 2532647 
+conv 26 cycles: 8725059 
+matmul 27 cycles: 4478752 
+conv 28 cycles: 1330925 
+matmul 29 cycles: 1625347 
+conv 30 cycles: 1968917 
+matmul 31 cycles: 1415940 
+matmul 32 cycles: 1643251 
+conv 33 cycles: 1966114 
+matmul 34 cycles: 1412033 
+matmul 35 cycles: 1637956 
+conv 36 cycles: 1969024 
+matmul 37 cycles: 1413484 
+matmul 38 cycles: 1644507 
+conv 39 cycles: 1966276 
+matmul 40 cycles: 1413851 
+matmul 41 cycles: 1639756 
+conv 42 cycles: 1968004 
+matmul 43 cycles: 1412309 
+matmul 44 cycles: 3340014 
+conv 45 cycles: 4809682 
+matmul 46 cycles: 4683396 
+conv 47 cycles: 1189824 
+matmul 48 cycles: 1979053 
+conv 49 cycles: 2662799 
+matmul 50 cycles: 1874875 
+matmul 51 cycles: 2000339 
+conv 52 cycles: 2663156 
+matmul 53 cycles: 1879597 
+matmul 54 cycles: 830904 
+
+Total cycles: 146131931 (100%)
+Matmul cycles: 66440105 (45%)
+Im2col cycles: 0 (0%)
+Conv cycles: 63592180 (43%)
+Pooling cycles: 0 (0%)
+Depthwise convolution cycles: 0 (0%)
+Res add cycles: 15756227 (10%)
+Other cycles: 343419 (0%)
+PASS
+- /home/inf01185/matheus.almeida/tg/chipyard/sims/verilator/generated-src/chipyard.harness.TestHarness.GemminiINT16RocketConfig/gen-collateral/TestDriver.v:158: Verilog $finish

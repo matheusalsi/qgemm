@@ -11,7 +11,7 @@ if [ $# -gt 0 ] && [[ "$1" != *"="* ]]; then
 fi
 
 # Define a tecnologia padrão
-TECH="sky130"
+TECH="asap7"
 
 # Array para guardar os argumentos que vão ser repassados para o make
 MAKE_ARGS=()

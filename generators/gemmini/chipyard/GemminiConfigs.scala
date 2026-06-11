@@ -14,32 +14,20 @@ class GemminiRocketConfig extends Config(
   new chipyard.config.AbstractConfig)
 // DOC include end: GemminiRocketConfig
 
-class GemminiINT4RocketConfig extends Config(
-  new gemmini.Int4GemminiConfig  ++                            // use Gemmini systolic array GEMM accelerator
+class GemminiINT4Acc16RocketConfig extends Config(
+  new gemmini.Int4Acc16GemminiConfig  ++                            
+  new freechips.rocketchip.rocket.WithNHugeCores(1) ++
+  new chipyard.config.WithSystemBusWidth(128) ++
+  new chipyard.config.AbstractConfig)
+
+class GemminiINT4Acc32RocketConfig extends Config(
+  new gemmini.Int4Acc32GemminiConfig ++
   new freechips.rocketchip.rocket.WithNHugeCores(1) ++
   new chipyard.config.WithSystemBusWidth(128) ++
   new chipyard.config.AbstractConfig)
 
 class GemminiINT16RocketConfig extends Config(
   new gemmini.Int16GemminiConfig ++ 
-  new freechips.rocketchip.rocket.WithNHugeCores(1) ++
-  new chipyard.config.WithSystemBusWidth(128) ++
-  new chipyard.config.AbstractConfig)
-
-class GemminiINT8PipeRocketConfig extends Config(
-  new gemmini.Int8PipeGemminiConfig ++
-  new freechips.rocketchip.rocket.WithNHugeCores(1) ++
-  new chipyard.config.WithSystemBusWidth(128) ++
-  new chipyard.config.AbstractConfig)
- 
-class GemminiINT4PipeRocketConfig extends Config(
-  new gemmini.Int4PipeGemminiConfig ++
-  new freechips.rocketchip.rocket.WithNHugeCores(1) ++
-  new chipyard.config.WithSystemBusWidth(128) ++
-  new chipyard.config.AbstractConfig)
- 
-class GemminiINT16PipeRocketConfig extends Config(
-  new gemmini.Int16PipeGemminiConfig ++
   new freechips.rocketchip.rocket.WithNHugeCores(1) ++
   new chipyard.config.WithSystemBusWidth(128) ++
   new chipyard.config.AbstractConfig)

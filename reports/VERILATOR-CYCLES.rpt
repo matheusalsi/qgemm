@@ -1,0 +1,44 @@
+Verilator - Resnet50 Cycles
+
+chipyard.harness.TestHarness.GemminiRocketConfig-ChipTop
+    Total cycles: 101048411 (100%)
+    Matmul cycles: 35487141 (35%)
+    Im2col cycles: 0 (0%)
+    Conv cycles: 53402389 (52%)
+    Pooling cycles: 0 (0%)
+    Depthwise convolution cycles: 0 (0%)
+    Res add cycles: 12016776 (11%)
+    Other cycles: 142105 (0%)
+
+chipyard.harness.TestHarness.GemminiINT16RocketConfig-ChipTop
+    Total cycles: 146131931 (100%)
+    Matmul cycles: 66440105 (45%)
+    Im2col cycles: 0 (0%)
+    Conv cycles: 63592180 (43%)
+    Pooling cycles: 0 (0%)
+    Depthwise convolution cycles: 0 (0%)
+    Res add cycles: 15756227 (10%)
+    Other cycles: 343419 (0%)
+    PASS
+
+chipyard.harness.TestHarness.GemminiINT4Acc32RocketConfig-ChipTop
+    Total cycles: 101035849 (100%)
+    Matmul cycles: 35481544 (35%)
+    Im2col cycles: 0 (0%)
+    Conv cycles: 53392929 (52%)
+    Pooling cycles: 0 (0%)
+    Depthwise convolution cycles: 0 (0%)
+    Res add cycles: 12019357 (11%)
+    Other cycles: 142019 (0%)
+    PASS
+
+chipyard.harness.TestHarness.GemminiINT4Acc16RocketConfig-ChipTop
+    Total cycles: 97247595 (100%)
+    Matmul cycles: 31082983 (31%)
+    Im2col cycles: 0 (0%)
+    Conv cycles: 55415856 (56%)
+    Pooling cycles: 0 (0%)
+    Depthwise convolution cycles: 0 (0%)
+    Res add cycles: 10619792 (10%)
+    Other cycles: 128964 (0%)
+    PASS
